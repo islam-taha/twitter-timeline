@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+
+require 'bundler/inline'
+
+gemfile do
+  source 'https://rubygems.org'
+
+  gem 'twitter'
+  gem 'dotenv'
+  gem 'metainspector'
+end
+
+# Load env vars
+Dotenv.load
+
+# init client
+client = Twitter::REST::Client.new do |config|
+  config.consumer_key        = ENV["CONSUMER_KEY"]
+  config.consumer_secret     = ENV["CONSUMER_SECRET"]
+  config.access_token        = ENV["ACCESS_TOKEN"]
+  config.access_token_secret = ENV["ACCESS_SECRET"]
+end
+
+start_date, end_date = ARGV[0], ARGV[1]
+start_date = Date.parse(start_date || Time.now.strftime("%F"))
+end_date   = Date.parse(end_date   || '1900-01-01')
+
+tweets = client.home_timeline(count: 200, include_entities: true).reject { |t| !t.uris? }
+
+tweets.select! do |t|
+  created_at = Date.parse(t.created_at.strftime("%F"))
+
+  created_at <= start_date && created_at >= end_date
+end
+
+tweets.each do |tweet|
+  tweet.uris.each do |uri|
+    begin
+      url_meta = MetaInspector.new(uri.url.to_s, encoding: 'UTF-8')
+      puts JSON.pretty_generate({
+        url: uri.url.to_s,
+        description: url_meta.best_description,
+        title: url_meta.title,
+        date: tweet.created_at.strftime("%F %T")
+      })
+    rescue
+      {}
+    end
+  end
+end
