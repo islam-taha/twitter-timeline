@@ -13,3 +13,4 @@ Twitter home timline script for fetching urls within tweets in your home timelin
 ## usage
 - ./tweets_executer start_date end_date
 - start_date & end_date should be in this format %Y-%M-%D (2019-02-14)
+- start_date & end_date are optional args
