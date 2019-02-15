@@ -2,8 +2,6 @@
 Twitter home timline script for fetching urls within tweets in your home timeline with a tiny description for each.
 
 ## requirements
-- ruby version >= 2.6.0
-- bundler version >= 2.0 (inline gemfile)
 - Internet connection :)
 
 ## Preparation
